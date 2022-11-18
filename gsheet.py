@@ -67,3 +67,11 @@ def import_values(spreadsheet_id, values, credentials):
     except HttpError as error:
         print(f"An error occurred: {error}")
         return error
+
+def replace_sheet(values, credentials, spreadsheet_id, sheet_id=0):
+    """Updates the sheet with the given values"""
+    spreadsheet_id = spreadsheet_id
+    sheet_id = sheet_id
+    clear_sheet(spreadsheet_id, sheet_id, credentials)
+
+    return import_values(spreadsheet_id, values, credentials)
