@@ -11,6 +11,7 @@ def main():
 
     parser.add_argument('--list', action='store_true', help="List all EC2 instances")
     parser.add_argument('--instance-id', '-i', nargs="+", default=[], help="EC2 instance ID")
+    parser.add_argument('--name', '-n', nargs="+", default=[], help="EC2 instance name")
     parser.add_argument('--region', '-r', help="AWS region")
     parser.add_argument('--stop', '-p', action='store_true', help="Stop EC2 instance")
     parser.add_argument('--start', '-t', action='store_true', help="Start EC2 instance")

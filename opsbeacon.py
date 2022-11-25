@@ -193,28 +193,32 @@ def action_status_ec2_instances(args):
     if not args.status:
         return
 
-    if not args.instance_id:
-        print("ERROR: --instance-id is required")
+    if not (args.instance_id or args.name):
+        print("ERROR: --instance-id or --name is required")
         return
     
     if not args.region:
         print("ERROR: --region is required")
         return
 
+    for name in args.name:
+        instance = get_instance_from_tag("Name", name, args.region)
+        print(f"{instance['InstanceId']} | {instance['State']['Name']}")
+    return
+
+def get_instance_from_tag(tag_name, tag_value, region):
     session = boto3.session.Session()
-    ec2 = session.client('ec2', region_name=args.region)
-    response = ec2.describe_instances( InstanceIds=args.instance_id )
+    ec2 = session.client('ec2', region_name=region)
+    response = ec2.describe_instances(Filters=[{'Name': f'tag:{tag_name}', 'Values': [tag_value]}])
     if response:
         for reservation in response['Reservations']:
             for instance in reservation['Instances']:
-                    print(f"{instance['InstanceId']} | {instance['State']['Name']}")
-                    return
-
+                return instance
+    return
 def action_list_ec2_instances(args):
     report = []
 
     session = boto3.session.Session()
-    ec2 = session.client('ec2')
 
     for region in get_all_aws_regions():
         if args.region and region not in args.region:
@@ -226,17 +230,24 @@ def action_list_ec2_instances(args):
         except Exception as e:
             # some regions might not be enabled for the account. Skip them
             continue
-
+        
         for reservation in response["Reservations"]:
             for instance in reservation["Instances"]:
                 report.append({
                     "instance_id": instance["InstanceId"],
+                    "instance_name": get_instance_name(instance),
                     "instance_type": instance["InstanceType"],
                     "region": region,
                     "state": instance["State"]["Name"],
                 })
 
     return report
+
+def get_instance_name(instance_attributes):
+    for tag in instance_attributes["Tags"]:
+        if tag["Key"] == "Name":
+            return tag["Value"]
+    return
 
 def action_stop_ec2_instances(args):
     if not args.stop:
