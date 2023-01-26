@@ -3,7 +3,7 @@
 # Check if two arguments were provided (instance name and instance type)
 if [ $# -ne 2 ]; then
   echo "Error: Please provide the instance name and instance type as arguments."
-  exit 1
+  exit
 fi
 
 # Set variables for the instance name and instance type
